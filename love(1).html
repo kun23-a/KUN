@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 有一封信，写给你</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&family=Dancing+Script:wght@600;700&family=Orbitron:wght@400;700;900&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   BASE RESET & SHARED
+═══════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100vh;overflow-x:hidden;}
+body{font-family:'Noto Serif SC',serif;transition:background .5s;}
+
+#canvas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* ═══════════════════════════════════
+   THEME: ROSE (default)
+═══════════════════════════════════ */
+body.theme-rose{
+  --accent:#e8445a; --accent2:#c2334a; --glow:rgba(232,68,90,.8);
+  --bg1:#1a0810; --bg2:#4a0d22; --bg3:#2a0814;
+  --text-main:rgba(255,220,225,.92);
+  --text-name-a:#ff9eb0; --text-name-b:#ffffff; --text-name-c:#ffd6de;
+  --card-bg:rgba(255,255,255,.04); --card-border:rgba(232,68,90,.18);
+  --date-bg:rgba(232,68,90,.08); --date-border:rgba(232,68,90,.2);
+  --cursor-color:#e8445a;
+  --font-title:'Ma Shan Zheng',cursive;
+  --font-body:'Noto Serif SC',serif;
+  --font-deco:'Dancing Script',cursive;
+  background:#1a0810;
+}
+body.theme-rose .bg-layer{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 0%,#4a0d22 0%,transparent 60%),
+    radial-gradient(ellipse 80% 80% at 0% 100%,#2a0814 0%,transparent 50%),
+    radial-gradient(ellipse 60% 60% at 100% 50%,#3a0e1c 0%,transparent 50%),
+    #110508;
+}
+body.theme-rose .bg-glow{
+  position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(232,68,90,.09) 0%,transparent 70%);
+  animation:glowPulse 4s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════
+   THEME: CYBER
+═══════════════════════════════════ */
+body.theme-cyber{
+  --accent:#00f5ff; --accent2:#bf5fff; --glow:rgba(0,245,255,.9);
+  --bg1:#020818; --bg2:#0a1628; --bg3:#060d1f;
+  --text-main:rgba(180,230,255,.9);
+  --text-name-a:#00f5ff; --text-name-b:#ffffff; --text-name-c:#bf5fff;
+  --card-bg:rgba(0,245,255,.03); --card-border:rgba(0,245,255,.18);
+  --date-bg:rgba(0,245,255,.06); --date-border:rgba(0,245,255,.2);
+  --cursor-color:#00f5ff;
+  --font-title:'Orbitron',sans-serif;
+  --font-body:'Noto Serif SC',serif;
+  --font-deco:'Orbitron',sans-serif;
+  background:#020818;
+}
+body.theme-cyber .bg-layer{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(0,245,255,.07) 0%,transparent 55%),
+    radial-gradient(ellipse 70% 70% at 80% 90%,rgba(191,95,255,.08) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,40,80,.5) 0%,transparent 70%),
+    #020818;
+}
+body.theme-cyber .bg-glow{
+  position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 50% 35% at 50% 50%,rgba(0,245,255,.04) 0%,transparent 70%);
+  animation:glowPulse 3s ease-in-out infinite;
+}
+/* scanlines for cyber */
+body.theme-cyber::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+}
+
+/* ═══════════════════════════════════
+   THEME: ANIME
+═══════════════════════════════════ */
+body.theme-anime{
+  --accent:#ff9de2; --accent2:#c77dff; --glow:rgba(255,157,226,.8);
+  --bg1:#fdf6ff; --bg2:#ffe8f5; --bg3:#f0e8ff;
+  --text-main:rgba(80,40,80,.88);
+  --text-name-a:#d63384; --text-name-b:#6f42c1; --text-name-c:#e91e8c;
+  --card-bg:rgba(255,255,255,.6); --card-border:rgba(255,157,226,.28);
+  --date-bg:rgba(255,157,226,.1); --date-border:rgba(255,157,226,.3);
+  --cursor-color:#d63384;
+  --font-title:'Ma Shan Zheng',cursive;
+  --font-body:'Zen Kaku Gothic New',sans-serif;
+  --font-deco:'Dancing Script',cursive;
+  background:#fdf6ff;
+}
+body.theme-anime .bg-layer{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%,rgba(255,157,226,.22) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 80% at 0% 100%,rgba(199,125,255,.15) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 60% at 100% 40%,rgba(255,200,230,.18) 0%,transparent 50%),
+    #fdf6ff;
+}
+body.theme-anime .bg-glow{
+  position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 55% 40% at 50% 50%,rgba(255,157,226,.08) 0%,transparent 70%);
+  animation:glowPulse 5s ease-in-out infinite;
+}
+
+/* ── shared bg-glow anim ── */
+@keyframes glowPulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+
+/* ═══════════════════════════════════
+   WRAPPER & LAYOUT
+═══════════════════════════════════ */
+#wrapper{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 24px 80px;
+}
+
+/* ── Opening screen ── */
+#opening{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+body.theme-rose  #opening{background:#110508;}
+body.theme-cyber #opening{background:#020818;}
+body.theme-anime #opening{background:#fdf6ff;}
+
+#opening.hidden{opacity:0;visibility:hidden;}
+
+.open-heart{
+  font-size:76px;margin-bottom:28px;
+  animation:openHB 1.6s ease-in-out infinite;
+}
+body.theme-rose  .open-heart{filter:drop-shadow(0 0 22px rgba(232,68,90,.9));}
+body.theme-cyber .open-heart{filter:drop-shadow(0 0 22px rgba(0,245,255,.9));}
+body.theme-anime .open-heart{filter:drop-shadow(0 0 18px rgba(255,157,226,.8));}
+
+@keyframes openHB{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.18);}
+}
+.open-text{
+  font-family:var(--font-title);
+  font-size:22px;letter-spacing:4px;margin-bottom:14px;
+}
+body.theme-rose  .open-text{color:rgba(255,180,190,.9);}
+body.theme-cyber .open-text{color:rgba(0,245,255,.9);font-size:16px;letter-spacing:6px;}
+body.theme-anime .open-text{color:rgba(180,80,140,.85);}
+
+.open-sub{font-size:12px;letter-spacing:3px;animation:blink 1.8s ease-in-out infinite;}
+body.theme-rose  .open-sub{color:rgba(255,150,170,.5);}
+body.theme-cyber .open-sub{color:rgba(0,245,255,.4);}
+body.theme-anime .open-sub{color:rgba(180,80,140,.4);}
+
+@keyframes blink{0%,100%{opacity:.35;}50%{opacity:1;}}
+
+/* ── letter ── */
+#letter{
+  width:100%;max-width:640px;
+  opacity:0;transform:translateY(30px);
+  transition:opacity 1s ease .2s,transform 1s ease .2s;
+}
+#letter.visible{opacity:1;transform:translateY(0);}
+
+/* to-header */
+.to-header{text-align:center;margin-bottom:44px;}
+.to-label{
+  font-family:var(--font-deco);
+  font-size:15px;letter-spacing:3px;margin-bottom:10px;
+}
+body.theme-rose  .to-label{color:rgba(255,180,190,.6);}
+body.theme-cyber .to-label{color:rgba(0,245,255,.55);font-size:12px;letter-spacing:5px;}
+body.theme-anime .to-label{color:rgba(180,80,140,.55);}
+
+.to-name{
+  font-family:var(--font-title);
+  font-size:clamp(38px,9vw,64px);
+  line-height:1.2;letter-spacing:6px;
+  background:linear-gradient(135deg,var(--text-name-a) 0%,var(--text-name-b) 45%,var(--text-name-c) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:nameGlow 3.5s ease-in-out infinite;
+}
+body.theme-cyber .to-name{
+  letter-spacing:8px;font-size:clamp(28px,7vw,52px);
+  text-shadow:none;
+  animation:cyberGlitch 4s linear infinite;
+}
+
+@keyframes nameGlow{
+  0%,100%{filter:drop-shadow(0 0 18px var(--glow));}
+  50%{filter:drop-shadow(0 0 36px var(--glow));}
+}
+@keyframes cyberGlitch{
+  0%,94%,100%{filter:drop-shadow(0 0 12px rgba(0,245,255,.8));}
+  95%{filter:drop-shadow(2px 0 0 #ff0090) drop-shadow(-2px 0 0 #00f5ff);}
+  97%{filter:drop-shadow(-2px 0 0 #ff0090) drop-shadow(2px 0 0 #00f5ff);}
+}
+
+/* photo */
+#photo-wrap{display:none;margin:0 auto 40px;width:fit-content;}
+#photo-wrap.show{display:block;}
+.photo-frame{
+  position:relative;padding:10px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(232,68,90,.3),rgba(201,149,108,.3));
+  box-shadow:0 0 0 1px rgba(232,68,90,.2),0 8px 40px rgba(232,68,90,.25),0 0 60px rgba(232,68,90,.1);
+}
+body.theme-cyber .photo-frame{
+  background:linear-gradient(135deg,rgba(0,245,255,.25),rgba(191,95,255,.25));
+  box-shadow:0 0 0 1px rgba(0,245,255,.3),0 8px 40px rgba(0,245,255,.2),0 0 60px rgba(0,245,255,.1);
+}
+body.theme-anime .photo-frame{
+  background:linear-gradient(135deg,rgba(255,157,226,.35),rgba(199,125,255,.3));
+  box-shadow:0 0 0 1px rgba(255,157,226,.3),0 8px 40px rgba(255,157,226,.2);
+}
+.photo-frame img{
+  display:block;max-width:340px;max-height:280px;
+  width:100%;border-radius:12px;object-fit:cover;
+}
+
+/* msg card */
+.msg-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:24px;padding:44px 40px;margin-bottom:36px;
+  position:relative;backdrop-filter:blur(8px);
+  box-shadow:0 4px 40px rgba(0,0,0,.1),0 0 0 1px rgba(255,255,255,.04) inset;
+}
+body.theme-anime .msg-card{
+  background:rgba(255,255,255,.65);
+  box-shadow:0 4px 32px rgba(255,157,226,.14),0 0 0 1px rgba(255,255,255,.8) inset;
+}
+.msg-card::before{
+  content:'"';
+  position:absolute;top:16px;left:24px;
+  font-family:'Dancing Script',cursive;font-size:88px;
+  color:var(--card-border);line-height:1;pointer-events:none;
+}
+body.theme-cyber .msg-card::before{color:rgba(0,245,255,.1);font-family:'Orbitron',sans-serif;font-size:60px;content:'< >';}
+
+#typewriter{
+  font-family:var(--font-body);
+  font-size:clamp(14px,2.4vw,16px);
+  line-height:2.2;color:var(--text-main);
+  letter-spacing:.5px;min-height:60px;white-space:pre-wrap;
+}
+body.theme-cyber #typewriter{font-size:14px;letter-spacing:1.5px;line-height:2;}
+
+.cursor{
+  display:inline-block;width:2px;height:1.1em;
+  background:var(--cursor-color);
+  margin-left:2px;vertical-align:text-bottom;
+  animation:blink .8s step-end infinite;border-radius:1px;
+}
+body.theme-cyber .cursor{width:8px;border-radius:2px;}
+
+/* date badge */
+#date-badge{display:none;text-align:center;margin-bottom:36px;}
+#date-badge.show{display:block;}
+.date-inner{
+  display:inline-flex;flex-direction:column;align-items:center;gap:5px;
+  padding:18px 34px;
+  background:var(--date-bg);border:1px solid var(--date-border);
+  border-radius:100px;backdrop-filter:blur(8px);
+}
+.date-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;}
+body.theme-rose  .date-label{color:rgba(255,160,180,.6);}
+body.theme-cyber .date-label{color:rgba(0,245,255,.5);font-family:'Orbitron',sans-serif;font-size:9px;}
+body.theme-anime .date-label{color:rgba(180,80,140,.5);}
+.date-value{font-family:var(--font-deco);font-size:21px;letter-spacing:2px;}
+body.theme-rose  .date-value{color:rgba(255,200,210,.95);}
+body.theme-cyber .date-value{color:rgba(0,245,255,.9);font-family:'Orbitron',sans-serif;font-size:16px;}
+body.theme-anime .date-value{color:rgba(180,80,140,.9);}
+.date-days{font-size:12px;letter-spacing:1px;}
+body.theme-rose  .date-days{color:rgba(255,130,150,.7);}
+body.theme-cyber .date-days{color:rgba(0,245,255,.6);}
+body.theme-anime .date-days{color:rgba(180,80,140,.6);}
+
+/* love footer */
+.love-footer{text-align:center;padding-top:20px;}
+.sparkle-row{font-size:18px;letter-spacing:8px;margin-bottom:12px;animation:sparkleFloat 3s ease-in-out infinite;}
+@keyframes sparkleFloat{0%,100%{transform:translateY(0);opacity:.5;}50%{transform:translateY(-5px);opacity:.9;}}
+.love-footer p{font-family:var(--font-deco);font-size:16px;letter-spacing:2px;}
+body.theme-rose  .love-footer p{color:rgba(255,160,180,.6);}
+body.theme-cyber .love-footer p{color:rgba(0,245,255,.4);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:4px;}
+body.theme-anime .love-footer p{color:rgba(180,80,140,.5);}
+
+/* ── music btn ── */
+#music-btn{
+  position:fixed;bottom:28px;right:28px;z-index:50;
+  width:48px;height:48px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.2);
+  color:white;font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s;backdrop-filter:blur(8px);
+}
+body.theme-rose  #music-btn{background:rgba(232,68,90,.85);box-shadow:0 4px 20px rgba(232,68,90,.4);}
+body.theme-cyber #music-btn{background:rgba(0,245,255,.15);box-shadow:0 4px 20px rgba(0,245,255,.3);border-color:rgba(0,245,255,.4);}
+body.theme-anime #music-btn{background:rgba(255,157,226,.8);box-shadow:0 4px 20px rgba(255,157,226,.4);}
+#music-btn:hover{transform:scale(1.12);}
+#music-btn.playing{animation:spin 3s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── hidden control menu ── */
+#ctrl-menu{
+  position:fixed;bottom:90px;right:20px;z-index:60;
+  display:none;flex-direction:column;gap:10px;align-items:flex-end;
+  animation:fadeIn .25s ease;
+}
+#ctrl-menu.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.ctrl-btn{
+  padding:11px 20px;border:none;border-radius:100px;
+  font-family:'Noto Serif SC',serif;font-size:13px;
+  cursor:pointer;letter-spacing:1px;white-space:nowrap;
+  backdrop-filter:blur(12px);
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
+}
+.ctrl-btn:hover{transform:scale(1.04);}
+
+body.theme-rose .ctrl-btn{background:rgba(42,21,32,.9);color:rgba(255,200,210,.9);border:1px solid rgba(232,68,90,.3);}
+body.theme-cyber .ctrl-btn{background:rgba(2,8,24,.9);color:rgba(0,245,255,.9);border:1px solid rgba(0,245,255,.3);}
+body.theme-anime .ctrl-btn{background:rgba(255,255,255,.92);color:rgba(140,40,100,.9);border:1px solid rgba(255,157,226,.4);}
+
+.ctrl-hint{
+  font-size:11px;letter-spacing:2px;text-align:right;padding:4px 8px;
+  border-radius:6px;
+}
+body.theme-rose  .ctrl-hint{color:rgba(255,160,180,.45);}
+body.theme-cyber .ctrl-hint{color:rgba(0,245,255,.3);}
+body.theme-anime .ctrl-hint{color:rgba(180,80,140,.35);}
+
+@media(max-width:520px){
+  .msg-card{padding:28px 18px;}
+  .to-name{letter-spacing:3px;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="bg-glow"></div>
+<canvas id="canvas"></canvas>
+
+<!-- Opening -->
+<div id="opening" onclick="startShow()">
+  <div class="open-heart" id="open-heart">💝</div>
+  <div class="open-text" id="open-text">有一封信，写给你</div>
+  <div class="open-sub" id="open-sub">点击任意处，打开这份心意</div>
+</div>
+
+<!-- Content -->
+<div id="wrapper">
+  <div id="letter">
+    <div class="to-header">
+      <div class="to-label" id="to-label">To ✦</div>
+      <div class="to-name" id="display-name">亲爱的你</div>
+    </div>
+
+    <div id="photo-wrap">
+      <div class="photo-frame">
+        <img id="display-photo" src="" alt="我们的照片">
+      </div>
+    </div>
+
+    <div class="msg-card">
+      <div id="typewriter"></div><span class="cursor" id="cursor"></span>
+    </div>
+
+    <div id="date-badge">
+      <div class="date-inner">
+        <div class="date-label">我们的纪念日</div>
+        <div class="date-value" id="display-date"></div>
+        <div class="date-days"  id="display-days"></div>
+      </div>
+    </div>
+
+    <div class="love-footer">
+      <div class="sparkle-row" id="sparkle-row">✦ ♥ ✦ ♥ ✦</div>
+      <p id="footer-p">每一天，都爱你多一点</p>
+    </div>
+  </div>
+</div>
+
+<!-- Music -->
+<button id="music-btn" title="播放/暂停">♪</button>
+
+<!-- Hidden Control Menu -->
+<div id="ctrl-menu">
+  <div class="ctrl-hint">双击屏幕唤出 / 再次双击关闭</div>
+  <button class="ctrl-btn" onclick="replayAnim()">🔄 重新播放动画</button>
+  <button class="ctrl-btn" onclick="hideGuide()">💡 录屏隐藏引导</button>
+</div>
+
+<audio id="bgm" loop></audio>
+
+<script>
+// ════════════════════════════════════════════
+//  PARSE PARAMS
+// ════════════════════════════════════════════
+function dec(s){
+  if(!s) return '';
+  try{ return decodeURIComponent(escape(atob(s))); }catch(e){ return ''; }
+}
+const P = new URLSearchParams(location.search);
+const name  = dec(P.get('n')) || '亲爱的你';
+const msg   = dec(P.get('m')) || '你好，这里写了想对你说的话。';
+const theme = dec(P.get('t')) || 'rose';
+const date  = dec(P.get('d')) || '';
+const photo = dec(P.get('p')) || '';
+
+// ════════════════════════════════════════════
+//  APPLY THEME CLASS
+// ════════════════════════════════════════════
+document.body.classList.add('theme-' + theme);
+document.title = '💌 给 ' + name + ' 的一封信';
+
+// theme-specific text tweaks
+if(theme === 'cyber'){
+  document.getElementById('open-heart').textContent = '⚡';
+  document.getElementById('open-text').textContent  = '< LOADING LOVE.EXE >';
+  document.getElementById('open-sub').textContent   = '[ CLICK TO INITIALIZE ]';
+  document.getElementById('to-label').textContent   = 'TARGET ::';
+  document.getElementById('sparkle-row').textContent = '> ░░ ♥ ░░ <';
+  document.getElementById('footer-p').textContent   = 'LOVE.EXE RUNNING FOREVER';
+}
+if(theme === 'anime'){
+  document.getElementById('open-heart').textContent = '🌸';
+  document.getElementById('open-sub').textContent   = '～ タップして開く ～';
+  document.getElementById('sparkle-row').textContent = '✿ ♡ ✿ ♡ ✿';
+  document.getElementById('footer-p').textContent   = '毎日、もっと好きになる';
+}
+
+// name & photo
+document.getElementById('display-name').textContent = name;
+if(photo){
+  document.getElementById('display-photo').src = photo;
+  document.getElementById('photo-wrap').classList.add('show');
+}
+
+// date
+if(date){
+  const d = new Date(date), now = new Date();
+  const diff = Math.floor((now - d)/(864e5));
+  document.getElementById('display-date').textContent =
+    d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('display-days').textContent =
+    diff >= 0 ? '相识已 '+diff+' 天 ♥' : '还有 '+(-diff)+' 天 ♥';
+  document.getElementById('date-badge').classList.add('show');
+}
+
+// music
+const MUSIC = {
+  rose:  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+  cyber: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
+  anime: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+};
+const bgm = document.getElementById('bgm');
+bgm.src = MUSIC[theme] || MUSIC.rose;
+bgm.volume = 0.3;
+
+// ════════════════════════════════════════════
+//  CANVAS PARTICLES
+// ════════════════════════════════════════════
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H;
+function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+// ─── ROSE: petal hearts ───────────────────
+const roseParticles = [];
+function spawnRose(){
+  roseParticles.push({
+    x: Math.random()*W, y: H+20,
+    size: 9+Math.random()*16,
+    speed: .7+Math.random()*1.4,
+    drift: (Math.random()-.5)*.7,
+    alpha: .35+Math.random()*.55,
+    rot: (Math.random()-.5)*.4,
+    hue: 340+Math.random()*25,
+    spin: (Math.random()-.5)*.008,
+  });
+}
+function drawHeartShape(ctx, s){
+  ctx.beginPath();
+  ctx.moveTo(0,-s*.33);
+  ctx.bezierCurveTo(0,-s*.66,-s*.5,-s*.66,-s*.5,-s*.26);
+  ctx.bezierCurveTo(-s*.5,0,0,s*.4,0,s*.66);
+  ctx.bezierCurveTo(0,s*.4,s*.5,0,s*.5,-s*.26);
+  ctx.bezierCurveTo(s*.5,-s*.66,0,-s*.66,0,-s*.33);
+  ctx.closePath();
+}
+function animRose(){
+  requestAnimationFrame(animRose);
+  ctx.clearRect(0,0,W,H);
+  if(Math.random()<.06) spawnRose();
+  for(let i=roseParticles.length-1;i>=0;i--){
+    const p=roseParticles[i];
+    p.y-=p.speed; p.x+=p.drift; p.rot+=p.spin;
+    if(p.y<-30){roseParticles.splice(i,1);continue;}
+    const fade=p.y>H-80?(H-p.y)/80:1;
+    ctx.save();
+    ctx.globalAlpha=p.alpha*fade;
+    ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+    ctx.fillStyle=`hsla(${p.hue},80%,70%,1)`;
+    drawHeartShape(ctx,p.size);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ─── CYBER: digital rain + neon lines ─────
+const cyberCols = [];
+const colW = 20;
+function initCyber(){
+  const cols = Math.ceil(W/colW);
+  for(let i=0;i<cols;i++){
+    cyberCols.push({
+      x: i*colW, y: -Math.random()*H,
+      speed: 1+Math.random()*3,
+      len: 5+Math.random()*20,
+      chars: [],
+      alpha: .2+Math.random()*.5,
+      hue: Math.random()<.6?180:280,
+    });
+  }
+}
+const cyberChars='0123456789ABCDEF♥★◆▲▼';
+function animCyber(){
+  requestAnimationFrame(animCyber);
+  ctx.clearRect(0,0,W,H);
+  ctx.font=`${colW-2}px 'Orbitron',monospace`;
+  for(const col of cyberCols){
+    col.y+=col.speed;
+    if(col.y>H+col.len*colW){ col.y=-col.len*colW; col.alpha=.15+Math.random()*.4; }
+    for(let i=0;i<col.len;i++){
+      const brightness=1-i/col.len;
+      const a=col.alpha*brightness*(Math.random()<.02?2:1);
+      ctx.fillStyle=`hsla(${col.hue},100%,${60+brightness*30}%,${Math.min(a,1)})`;
+      const char=cyberChars[Math.floor(Math.random()*cyberChars.length)];
+      ctx.fillText(char,col.x,col.y-i*colW);
+    }
+  }
+  // neon streaks
+  if(Math.random()<.015){
+    const x=Math.random()*W,len=60+Math.random()*200;
+    const g=ctx.createLinearGradient(x,0,x+len,0);
+    g.addColorStop(0,'rgba(0,245,255,0)');
+    g.addColorStop(.5,'rgba(0,245,255,0.4)');
+    g.addColorStop(1,'rgba(191,95,255,0)');
+    ctx.strokeStyle=g;ctx.lineWidth=1;
+    ctx.beginPath();const y=Math.random()*H;
+    ctx.moveTo(x,y);ctx.lineTo(x+len,y);ctx.stroke();
+  }
+}
+
+// ─── ANIME: cherry blossoms ───────────────
+const animeParticles=[];
+function spawnAnime(){
+  animeParticles.push({
+    x:Math.random()*W, y:-20,
+    size:4+Math.random()*10,
+    speed:.6+Math.random()*1.3,
+    drift:(Math.random()-.5)*.9,
+    alpha:.4+Math.random()*.5,
+    rot:Math.random()*Math.PI*2,
+    spin:(Math.random()-.5)*.03,
+    hue:320+Math.random()*40,
+    sat:60+Math.random()*30,
+    petals:5,
+  });
+}
+function drawSakura(ctx,size,hue,sat){
+  for(let i=0;i<5;i++){
+    ctx.save();
+    ctx.rotate((Math.PI*2/5)*i);
+    ctx.beginPath();
+    ctx.ellipse(0,-size*.5,size*.28,size*.5,0,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${hue},${sat}%,85%,1)`;
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath();
+  ctx.arc(0,0,size*.18,0,Math.PI*2);
+  ctx.fillStyle=`hsla(${hue+20},80%,95%,1)`;
+  ctx.fill();
+}
+function animAnime(){
+  requestAnimationFrame(animAnime);
+  ctx.clearRect(0,0,W,H);
+  if(Math.random()<.08) spawnAnime();
+  for(let i=animeParticles.length-1;i>=0;i--){
+    const p=animeParticles[i];
+    p.y+=p.speed;p.x+=p.drift+Math.sin(p.y*.02)*.4;p.rot+=p.spin;
+    if(p.y>H+30){animeParticles.splice(i,1);continue;}
+    ctx.save();
+    ctx.globalAlpha=p.alpha;
+    ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+    drawSakura(ctx,p.size,p.hue,p.sat);
+    ctx.restore();
+  }
+  // sparkle dots
+  if(Math.random()<.04){
+    ctx.save();
+    ctx.globalAlpha=Math.random()*.6+.2;
+    ctx.fillStyle=`hsla(${320+Math.random()*40},90%,85%,1)`;
+    ctx.beginPath();
+    ctx.arc(Math.random()*W,Math.random()*H,1+Math.random()*2,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function startParticles(){
+  if(theme==='rose') animRose();
+  else if(theme==='cyber'){ initCyber(); animCyber(); }
+  else animAnime();
+}
+
+// ════════════════════════════════════════════
+//  TYPEWRITER
+// ════════════════════════════════════════════
+let typeStarted=false;
+function startTypewriter(){
+  if(typeStarted) return; typeStarted=true;
+  const el=document.getElementById('typewriter');
+  el.textContent='';let i=0;
+  function type(){
+    if(i<msg.length){
+      el.textContent+=msg[i++];
+      setTimeout(type, theme==='cyber'?45:65);
+    }else{
+      document.getElementById('cursor').style.display='none';
+    }
+  }
+  setTimeout(type,500);
+}
+
+// replay
+function replayAnim(){
+  closeCtrlMenu();
+  document.getElementById('typewriter').textContent='';
+  document.getElementById('cursor').style.display='inline-block';
+  document.getElementById('letter').classList.remove('visible');
+  setTimeout(()=>{
+    document.getElementById('letter').classList.add('visible');
+    typeStarted=false;
+    startTypewriter();
+  },200);
+}
+
+// ════════════════════════════════════════════
+//  OPENING
+// ════════════════════════════════════════════
+let opened=false;
+function startShow(){
+  if(opened) return; opened=true;
+  document.getElementById('opening').classList.add('hidden');
+  document.getElementById('letter').classList.add('visible');
+  bgm.play().then(()=>{ document.getElementById('music-btn').classList.add('playing'); }).catch(()=>{});
+  startTypewriter();
+  startParticles();
+}
+
+// ════════════════════════════════════════════
+//  MUSIC BTN
+// ════════════════════════════════════════════
+const musicBtn=document.getElementById('music-btn');
+musicBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(bgm.paused){ bgm.play(); musicBtn.classList.add('playing'); musicBtn.textContent='♫'; }
+  else{ bgm.pause(); musicBtn.classList.remove('playing'); musicBtn.textContent='♪'; }
+});
+
+// ════════════════════════════════════════════
+//  HIDDEN CONTROL MENU  (double-click to toggle)
+// ════════════════════════════════════════════
+const ctrlMenu=document.getElementById('ctrl-menu');
+let lastTap=0;
+document.addEventListener('click',e=>{
+  if(e.target.closest('#ctrl-menu')||e.target.closest('#music-btn')||e.target.closest('#opening')) return;
+  const now=Date.now();
+  if(now-lastTap<350){ toggleCtrlMenu(); }
+  lastTap=now;
+});
+// also long-press for mobile
+let pressTimer;
+document.addEventListener('touchstart',e=>{
+  if(e.target.closest('#ctrl-menu')||e.target.closest('#music-btn')||e.target.closest('#opening')) return;
+  pressTimer=setTimeout(()=>toggleCtrlMenu(),600);
+},{passive:true});
+document.addEventListener('touchend',()=>clearTimeout(pressTimer),{passive:true});
+document.addEventListener('touchmove',()=>clearTimeout(pressTimer),{passive:true});
+
+function toggleCtrlMenu(){
+  ctrlMenu.classList.toggle('show');
+}
+function closeCtrlMenu(){ ctrlMenu.classList.remove('show'); }
+function hideGuide(){ closeCtrlMenu(); }
+</script>
+</body>
+</html>

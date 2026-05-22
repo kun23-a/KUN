@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 爱的网页生成器 · 多主题版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&family=Dancing+Script:wght@500;700&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+:root {
+  --rose:       #e8445a;
+  --rose2:      #c2334a;
+  --rose-light: #ff7b8f;
+  --rose-pale:  #fff0f3;
+  --cream:      #fffaf8;
+  --gold:       #c9956c;
+  --gold-light: #f0c89e;
+  --dark:       #2a1520;
+  --mid:        #6b3a4a;
+  --border:     rgba(232,68,90,0.14);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family:'Noto Serif SC',serif;
+  background:var(--cream);
+  color:var(--dark);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ambient bg */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 15%, rgba(232,68,90,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 85%, rgba(201,149,108,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,220,230,0.05) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* petals */
+.petal{
+  position:fixed;border-radius:60% 40% 60% 40% / 50%;
+  opacity:0;animation:fall linear infinite;pointer-events:none;z-index:0;
+}
+@keyframes fall{
+  0%  {transform:translateY(-20px) rotate(0deg) scale(1);opacity:0;}
+  8%  {opacity:.65;}
+  90% {opacity:.35;}
+  100%{transform:translateY(110vh) rotate(720deg) scale(.5);opacity:0;}
+}
+
+.container{
+  position:relative;z-index:1;
+  max-width:720px;margin:0 auto;
+  padding:60px 24px 90px;
+}
+
+/* ── header ── */
+header{text-align:center;margin-bottom:54px;}
+.header-eyebrow{
+  display:inline-block;
+  font-family:'Dancing Script',cursive;
+  font-size:13px;letter-spacing:3px;
+  color:var(--rose);text-transform:uppercase;
+  margin-bottom:14px;opacity:.75;
+}
+h1{
+  font-family:'Ma Shan Zheng',cursive;
+  font-size:clamp(38px,7vw,60px);
+  color:var(--dark);line-height:1.2;
+  margin-bottom:12px;letter-spacing:5px;
+}
+h1 em{font-style:normal;color:var(--rose);}
+.subtitle{font-size:14px;color:var(--mid);opacity:.7;letter-spacing:1.5px;line-height:1.9;}
+.hd{
+  display:flex;align-items:center;gap:12px;
+  margin:26px auto 0;width:fit-content;
+}
+.hd::before,.hd::after{content:'';width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--rose-light));}
+.hd::after{background:linear-gradient(90deg,var(--rose-light),transparent);}
+.hd span{font-size:18px;animation:hb 1.6s ease-in-out infinite;}
+@keyframes hb{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+
+/* ── card ── */
+.form-card{
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:50px 44px;
+  box-shadow:0 6px 32px rgba(232,68,90,.07),0 1px 0 rgba(255,255,255,.9) inset;
+}
+
+.section-label{
+  font-size:10px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  color:rgba(107,58,74,.45);
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,68,90,.12),transparent);}
+
+.field{margin-bottom:26px;}
+label{
+  display:block;
+  font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--rose);margin-bottom:9px;
+}
+label .ico{margin-right:6px;}
+
+input[type=text],input[type=date],input[type=url],textarea{
+  width:100%;
+  background:rgba(255,240,243,.38);
+  border:1.5px solid rgba(232,68,90,.14);
+  border-radius:13px;
+  padding:13px 17px;
+  font-family:'Noto Serif SC',serif;
+  font-size:15px;color:var(--dark);
+  outline:none;
+  transition:border-color .25s,box-shadow .25s,background .25s;
+}
+input:focus,textarea:focus{
+  border-color:var(--rose-light);
+  background:rgba(255,240,243,.65);
+  box-shadow:0 0 0 4px rgba(232,68,90,.08);
+}
+input::placeholder,textarea::placeholder{color:#c4a0ac;font-size:14px;}
+textarea{resize:vertical;min-height:120px;line-height:1.9;}
+.hint{font-size:12px;color:#b08090;margin-top:6px;line-height:1.7;}
+.hint a{color:var(--rose);text-decoration:none;}
+
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,68,90,.14),transparent);
+  margin:34px 0;
+}
+
+/* ── theme cards ── */
+.theme-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+.theme-card{
+  position:relative;cursor:pointer;
+}
+.theme-card input[type=radio]{
+  position:absolute;opacity:0;width:0;height:0;
+}
+.theme-card .card-inner{
+  border:2px solid rgba(232,68,90,.15);
+  border-radius:18px;
+  padding:20px 14px 18px;
+  text-align:center;
+  transition:border-color .25s,box-shadow .25s,transform .2s,background .25s;
+  background:rgba(255,248,250,.5);
+  user-select:none;
+}
+.theme-card input:checked ~ .card-inner{
+  border-color:var(--rose);
+  background:rgba(255,240,243,.7);
+  box-shadow:0 0 0 4px rgba(232,68,90,.1),0 6px 24px rgba(232,68,90,.15);
+  transform:translateY(-3px);
+}
+.theme-card .card-inner:hover{
+  border-color:var(--rose-light);
+  transform:translateY(-2px);
+}
+.theme-icon{font-size:32px;display:block;margin-bottom:10px;line-height:1;}
+.theme-name{
+  font-family:'Ma Shan Zheng',cursive;
+  font-size:15px;color:var(--dark);
+  letter-spacing:2px;margin-bottom:5px;
+}
+.theme-desc{font-size:11px;color:var(--mid);opacity:.65;line-height:1.6;letter-spacing:.5px;}
+.theme-check{
+  position:absolute;top:10px;right:12px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--rose);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:white;
+  opacity:0;transform:scale(.5);
+  transition:opacity .2s,transform .2s;
+}
+.theme-card input:checked ~ .card-inner .theme-check{
+  opacity:1;transform:scale(1);
+}
+
+/* cyber preview */
+.theme-card[data-theme=cyber] .card-inner{background:rgba(10,10,30,.04);}
+.theme-card[data-theme=cyber] input:checked ~ .card-inner{
+  border-color:#00f5ff;
+  background:rgba(0,245,255,.05);
+  box-shadow:0 0 0 4px rgba(0,245,255,.08),0 6px 24px rgba(0,245,255,.12);
+}
+.theme-card[data-theme=cyber] .theme-name{
+  background:linear-gradient(90deg,#00f5ff,#bf5fff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+/* anime preview */
+.theme-card[data-theme=anime] .card-inner{background:rgba(255,240,255,.35);}
+.theme-card[data-theme=anime] input:checked ~ .card-inner{
+  border-color:#ff9de2;
+  background:rgba(255,157,226,.08);
+  box-shadow:0 0 0 4px rgba(255,157,226,.1),0 6px 24px rgba(255,157,226,.15);
+}
+
+/* ── generate btn ── */
+.btn-generate{
+  width:100%;padding:19px;
+  background:linear-gradient(135deg,var(--rose) 0%,var(--rose2) 100%);
+  color:white;border:none;border-radius:15px;
+  font-family:'Ma Shan Zheng',cursive;
+  font-size:22px;letter-spacing:4px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 8px 32px rgba(232,68,90,.38),0 2px 0 rgba(255,255,255,.15) inset;
+}
+.btn-generate::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.16) 0%,transparent 60%);
+  pointer-events:none;
+}
+.btn-generate:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(232,68,90,.48),0 2px 0 rgba(255,255,255,.15) inset;}
+.btn-generate:active{transform:translateY(0);}
+
+/* ── result modal overlay ── */
+#result-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:200;
+  background:rgba(42,21,32,.55);
+  backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+  padding:24px;
+  animation:fadeIn .3s ease;
+}
+#result-overlay.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.result-modal{
+  background:rgba(255,252,253,.97);
+  border:1px solid rgba(232,68,90,.18);
+  border-radius:28px;
+  padding:40px 36px;
+  max-width:520px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(42,21,32,.35);
+  animation:slideUp .35s cubic-bezier(.16,1,.3,1);
+  position:relative;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+.modal-close{
+  position:absolute;top:18px;right:20px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(232,68,90,.1);border:none;
+  font-size:16px;cursor:pointer;color:var(--rose);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.modal-close:hover{background:rgba(232,68,90,.2);}
+
+.modal-title{
+  font-family:'Ma Shan Zheng',cursive;
+  font-size:22px;color:var(--rose);
+  letter-spacing:3px;text-align:center;
+  margin-bottom:24px;
+}
+#qrcode{
+  display:flex;justify-content:center;margin-bottom:18px;
+}
+#qrcode canvas,#qrcode img{
+  border-radius:14px;
+  padding:12px;background:white;
+  box-shadow:0 4px 20px rgba(232,68,90,.12);
+  display:block;
+}
+.url-row{display:flex;gap:10px;margin-bottom:20px;}
+.url-inp{
+  flex:1;
+  background:rgba(255,240,243,.4) !important;
+  border:1.5px solid rgba(232,68,90,.18) !important;
+  border-radius:11px !important;
+  font-size:11.5px !important;
+  padding:10px 13px !important;
+  color:var(--mid) !important;
+}
+.btn-copy{
+  padding:10px 20px;
+  background:var(--rose);color:white;border:none;
+  border-radius:11px;font-family:'Noto Serif SC',serif;
+  font-size:13px;cursor:pointer;white-space:nowrap;
+  transition:background .2s,transform .15s;
+}
+.btn-copy:hover{background:var(--rose2);transform:scale(1.03);}
+.btn-copy.copied{background:#4caf50;}
+
+.open-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--rose);font-size:13px;text-decoration:none;
+  border-bottom:1px dashed var(--rose-light);
+  padding-bottom:2px;transition:opacity .2s;margin-bottom:22px;
+}
+.open-link:hover{opacity:.65;}
+
+/* tips box */
+.tips-box{
+  background:linear-gradient(135deg,rgba(255,240,243,.7),rgba(255,250,248,.7));
+  border:1px solid rgba(232,68,90,.16);
+  border-radius:16px;padding:20px 22px;
+  margin-top:4px;
+}
+.tips-title{
+  font-size:12px;font-weight:700;letter-spacing:2px;
+  color:var(--rose);text-transform:uppercase;
+  margin-bottom:13px;
+  display:flex;align-items:center;gap:6px;
+}
+.tips-list{list-style:none;padding:0;}
+.tips-list li{
+  font-size:12.5px;color:var(--mid);
+  line-height:1.8;padding:5px 0;
+  border-bottom:1px dashed rgba(232,68,90,.1);
+  display:flex;align-items:flex-start;gap:8px;
+}
+.tips-list li:last-child{border-bottom:none;}
+.tips-list li .tip-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+footer{
+  text-align:center;margin-top:64px;
+  font-size:12px;color:#c4a0ac;letter-spacing:2px;
+}
+
+@media(max-width:560px){
+  .form-card{padding:28px 18px;}
+  .theme-grid{grid-template-columns:1fr;}
+  .result-modal{padding:28px 18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-eyebrow">✦ Love Page Generator · 多主题版 ✦</div>
+    <h1>爱的<em>网页</em>生成器</h1>
+    <p class="subtitle">将心意化为一页网站，送给最重要的她</p>
+    <div class="hd"><span>♥</span></div>
+  </header>
+
+  <div class="form-card">
+
+    <!-- 基础信息 -->
+    <div class="section-label">基础信息</div>
+
+    <div class="field">
+      <label><span class="ico">🌸</span>她的名字</label>
+      <input type="text" id="inp-name" placeholder="写下她的名字…" maxlength="20">
+    </div>
+
+    <div class="field">
+      <label><span class="ico">💌</span>想对她说的话</label>
+      <textarea id="inp-msg" placeholder="把所有藏在心里的话，都写在这里吧…&#10;&#10;例如：遇见你是我这辈子最幸运的事…"></textarea>
+    </div>
+
+    <div class="field">
+      <label><span class="ico">📅</span>我们的纪念日</label>
+      <input type="date" id="inp-date">
+    </div>
+
+    <div class="field">
+      <label><span class="ico">🖼️</span>照片链接（可选）</label>
+      <input type="url" id="inp-photo" placeholder="https://… 粘贴你们的合照直链">
+      <p class="hint">💡 可上传至 <a href="https://imgur.com" target="_blank">imgur.com</a> 后复制直链粘贴此处</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 主题选择 -->
+    <div class="section-label">选择表白风格主题</div>
+
+    <div class="theme-grid">
+
+      <label class="theme-card" data-theme="rose">
+        <input type="radio" name="theme" value="rose" checked>
+        <div class="card-inner">
+          <div class="theme-check">✓</div>
+          <span class="theme-icon">🌹</span>
+          <div class="theme-name">经典红玫瑰</div>
+          <div class="theme-desc">深红暗夜·霓虹发光·玫瑰花瓣飘落·浪漫钢琴</div>
+        </div>
+      </label>
+
+      <label class="theme-card" data-theme="cyber">
+        <input type="radio" name="theme" value="cyber">
+        <div class="card-inner">
+          <div class="theme-check">✓</div>
+          <span class="theme-icon">⚡</span>
+          <div class="theme-name">赛博朋克</div>
+          <div class="theme-desc">黑蓝电光·荧光故障字·数字雨粒子·Lofi 电子</div>
+        </div>
+      </label>
+
+      <label class="theme-card" data-theme="anime">
+        <input type="radio" name="theme" value="anime">
+        <div class="card-inner">
+          <div class="theme-check">✓</div>
+          <span class="theme-icon">🌸</span>
+          <div class="theme-name">二次元纯爱</div>
+          <div class="theme-desc">粉白柔光·可爱圆体·樱花雨粒子·动漫轻音</div>
+        </div>
+      </label>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-generate" onclick="generate()">
+      ✨ 一键生成专属表白网页 ✨
+    </button>
+
+  </div>
+
+  <footer>用心做的每一页，都是爱的证明 ♥</footer>
+</div>
+
+<!-- Result Modal -->
+<div id="result-overlay" onclick="closeModalOutside(event)">
+  <div class="result-modal" id="result-modal">
+    <button class="modal-close" onclick="closeModal()" title="关闭">✕</button>
+    <div class="modal-title">💝 专属网页已生成</div>
+
+    <div id="qrcode"></div>
+    <p style="font-size:12px;color:var(--mid);letter-spacing:1px;text-align:center;margin-bottom:14px;">扫码或复制链接发给她</p>
+
+    <div class="url-row">
+      <input class="url-inp" type="text" id="result-url" readonly>
+      <button class="btn-copy" id="btn-copy" onclick="copyUrl()">复制链接</button>
+    </div>
+
+    <div style="text-align:center;margin-bottom:8px;">
+      <a id="open-link" class="open-link" href="#" target="_blank">🔗 在新标签页预览效果</a>
+    </div>
+
+    <!-- 录屏小技巧 -->
+    <div class="tips-box">
+      <div class="tips-title">🎬 录屏搞钱小技巧</div>
+      <ul class="tips-list">
+        <li>
+          <span class="tip-icon">📱</span>
+          <span>打开链接后，<b>点击屏幕中央大心形</b>触发开场动画，此刻开始录屏效果最佳</span>
+        </li>
+        <li>
+          <span class="tip-icon">🔄</span>
+          <span><b>双击屏幕</b>可唤出隐藏控制菜单，点「重新播放动画」可无限次复录直到满意</span>
+        </li>
+        <li>
+          <span class="tip-icon">💡</span>
+          <span>点控制菜单中的「录屏隐藏引导」后菜单消失，画面干净，方便手机系统录屏</span>
+        </li>
+        <li>
+          <span class="tip-icon">🎵</span>
+          <span>录屏前确认右下角音乐按钮已播放，背景音乐会一起录入，情绪加倍</span>
+        </li>
+        <li>
+          <span class="tip-icon">✂️</span>
+          <span>录好后用剪映/CapCut 裁剪 15-30 秒精华，加字幕发朋友圈或小红书效果炸裂</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Petals ────────────────────────────────────────────────
+const petalColors=['#ffb3c1','#ff7b8f','#ffccd5','#ffc8a0','#ffd6d6','#ff9eaf','#ffe0e6'];
+for(let i=0;i<16;i++){
+  const el=document.createElement('div');
+  el.className='petal';
+  const sz=6+Math.random()*11;
+  el.style.cssText=`
+    left:${Math.random()*100}%;
+    background:${petalColors[Math.floor(Math.random()*petalColors.length)]};
+    width:${sz}px;height:${sz}px;
+    animation-duration:${9+Math.random()*10}s;
+    animation-delay:${Math.random()*12}s;
+    border-radius:${Math.random()>.5?'60% 40% 60% 40%':'50%'};
+  `;
+  document.body.appendChild(el);
+}
+
+// ── Encode / Generate ─────────────────────────────────────
+function enc(s){ return btoa(unescape(encodeURIComponent(s))); }
+
+function generate(){
+  const name  = document.getElementById('inp-name').value.trim();
+  const msg   = document.getElementById('inp-msg').value.trim();
+  const date  = document.getElementById('inp-date').value;
+  const photo = document.getElementById('inp-photo').value.trim();
+  const theme = document.querySelector('input[name=theme]:checked').value;
+
+  if(!name){ showToast('请填写她的名字 🌸'); return; }
+  if(!msg){  showToast('请写下想对她说的话 💌'); return; }
+
+  const params=new URLSearchParams();
+  params.set('n', enc(name));
+  params.set('m', enc(msg));
+  params.set('t', enc(theme));
+  if(date)  params.set('d', enc(date));
+  if(photo) params.set('p', enc(photo));
+
+  const base = location.href.replace(/index\.html.*$/,'').replace(/\/$/,'');
+  const url  = base + '/love.html?' + params.toString();
+
+  document.getElementById('result-url').value = url;
+  document.getElementById('open-link').href   = url;
+
+  const qrEl=document.getElementById('qrcode');
+  qrEl.innerHTML='';
+  QRCode.toCanvas(url,{width:176,margin:2,color:{dark:'#2a1520',light:'#ffffff'}},(err,canvas)=>{
+    if(!err) qrEl.appendChild(canvas);
+  });
+
+  document.getElementById('result-overlay').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('result-overlay').classList.remove('show'); }
+function closeModalOutside(e){
+  if(e.target===document.getElementById('result-overlay')) closeModal();
+}
+
+function copyUrl(){
+  const url=document.getElementById('result-url').value;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('btn-copy');
+    btn.textContent='✓ 已复制';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='复制链接';btn.classList.remove('copied');},2200);
+  });
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  Object.assign(t.style,{
+    position:'fixed',bottom:'32px',left:'50%',transform:'translateX(-50%)',
+    background:'rgba(42,21,32,.9)',color:'#ffccd5',
+    padding:'12px 28px',borderRadius:'100px',fontSize:'14px',
+    letterSpacing:'1px',zIndex:999,
+    animation:'fadeIn .3s ease',backdropFilter:'blur(8px)',
+    boxShadow:'0 4px 20px rgba(0,0,0,.2)'
+  });
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2400);
+}
+</script>
+</body>
+</html>
